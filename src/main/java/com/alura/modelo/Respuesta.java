@@ -1,16 +1,27 @@
 package com.alura.modelo;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 public class Respuesta {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String mensaje;
-	private Topico topico;
-	private LocalDateTime fechaCreacion = LocalDateTime.now();
-	private Usuario autor;
-	private Boolean solucion = false;
 
+	private String mensaje;
+
+	@ManyToOne
+	private Topico topico;
+
+	@Column(name = "fecha_creacion")
+	private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+	@ManyToOne
+	private Usuario autor;
+
+	private Boolean solucion = false;
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -60,11 +71,11 @@ public class Respuesta {
 		this.topico = topico;
 	}
 
-	public LocalDateTime getfechaCreacion() {
+	public LocalDateTime getFechaCreacion() {
 		return fechaCreacion;
 	}
 
-	public void setfechaCreacion(LocalDateTime fechaCreacion) {
+	public void setFechaCreacion(LocalDateTime fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
 	}
 
@@ -83,5 +94,7 @@ public class Respuesta {
 	public void setSolucion(Boolean solucion) {
 		this.solucion = solucion;
 	}
+
+
 
 }

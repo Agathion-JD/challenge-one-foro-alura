@@ -1,19 +1,37 @@
 package com.alura.modelo;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Topico {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
 	private String titulo;
 	private String mensaje;
+
+	@Column(name = "fecha_creacion")
 	private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+	@Enumerated(EnumType.STRING)
 	private StatusTopico status = StatusTopico.NO_RESPONDIDO;
+
+	@ManyToOne
 	private Usuario autor;
+
+	@ManyToOne
 	private Curso curso;
+
+	@OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
 	private List<Respuesta> respuestas = new ArrayList<>();
+
+	public Topico() {
+	}
 
 	public Topico(String titulo, String mensaje, Curso curso) {
 		this.titulo = titulo;
@@ -70,11 +88,11 @@ public class Topico {
 		this.mensaje = mensaje;
 	}
 
-	public LocalDateTime getfechaCreacion() {
+	public LocalDateTime getFechaCreacion() {
 		return fechaCreacion;
 	}
 
-	public void setfechaCreacion(LocalDateTime fechaCreacion) {
+	public void setFechaCreacion(LocalDateTime fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
 	}
 
@@ -109,5 +127,6 @@ public class Topico {
 	public void setRespuestas(List<Respuesta> respuestas) {
 		this.respuestas = respuestas;
 	}
+
 
 }
