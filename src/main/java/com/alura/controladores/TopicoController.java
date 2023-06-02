@@ -1,9 +1,12 @@
 package com.alura.controladores;
 
 import com.alura.modelo.Curso;
-import com.alura.modelo.Topico;
+import com.alura.modelo.Respuesta;
+import com.alura.modelo.topico.Topico;
 import com.alura.modelo.Usuario;
+import com.alura.modelo.topico.TopicoDTO;
 import com.alura.repositorios.CursoRepository;
+import com.alura.repositorios.RespuestaRepository;
 import com.alura.repositorios.TopicoRepository;
 import com.alura.repositorios.UsuarioRepository;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,19 +26,41 @@ public class TopicoController {
     private final TopicoRepository topicoRepository;
     private final UsuarioRepository usuarioRepository;
     private final CursoRepository cursoRepository;
+    private final RespuestaRepository respuestaRepository;
 
-    public TopicoController(TopicoRepository topicoRepository, UsuarioRepository usuarioRepository, CursoRepository cursoRepository) {
+
+    public TopicoController(TopicoRepository topicoRepository, UsuarioRepository usuarioRepository, CursoRepository cursoRepository, RespuestaRepository respuestaRepository) {
         this.topicoRepository = topicoRepository;
         this.usuarioRepository = usuarioRepository;
         this.cursoRepository = cursoRepository;
+        this.respuestaRepository = respuestaRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<Topico>> getAllTopicos() {
+    public ResponseEntity<List<TopicoDTO>> getAllTopicos() {
         List<Topico> topicos = topicoRepository.findAll();
-        return ResponseEntity.ok(topicos);
-    }
 
+        List<TopicoDTO> topicosDTO = new ArrayList<>();
+
+        for (Topico topico : topicos) {
+            TopicoDTO topicoDTO = new TopicoDTO();
+            topicoDTO.setTitulo(topico.getTitulo());
+            topicoDTO.setMensaje(topico.getMensaje());
+            topicoDTO.setFechaCreacion(topico.getFechaCreacion());
+            topicoDTO.setStatus(topico.getStatus().name());
+            topicoDTO.setAutor(topico.getAutor().getNombre());
+            topicoDTO.setCurso(topico.getCurso().getNombre());
+
+            if (!topico.getRespuestas().isEmpty()) {
+                Respuesta respuesta = topico.getRespuestas().get(0); // Obtén la primera respuesta
+                topicoDTO.setRespuesta(respuesta.getMensaje());
+            }
+
+            topicosDTO.add(topicoDTO);
+        }
+
+        return ResponseEntity.ok(topicosDTO);
+    }
     @PostMapping
     public ResponseEntity<?> createTopico(@RequestBody Topico topico) {
         // Validar campos obligatorios
@@ -127,4 +153,5 @@ public class TopicoController {
         return topicoRepository.findById(id)
                 .orElse(null);
     }
+
 }

@@ -1,5 +1,7 @@
 package com.alura.modelo;
 
+import com.alura.modelo.topico.Topico;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -12,7 +14,9 @@ public class Respuesta {
 
 	private String mensaje;
 
+	@JsonBackReference
 	@ManyToOne
+	@JoinColumn(name = "topico_id")
 	private Topico topico;
 
 	@Column(name = "fecha_creacion")

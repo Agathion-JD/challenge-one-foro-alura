@@ -1,8 +1,12 @@
-package com.alura.modelo;
+package com.alura.modelo.topico;
 
+import com.alura.modelo.Curso;
+import com.alura.modelo.Respuesta;
+import com.alura.modelo.StatusTopico;
+import com.alura.modelo.Usuario;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,7 +15,6 @@ public class Topico {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	private String titulo;
 	private String mensaje;
 
@@ -24,11 +27,13 @@ public class Topico {
 	@ManyToOne
 	private Usuario autor;
 
+
 	@ManyToOne
 	private Curso curso;
 
+	@JsonManagedReference
 	@OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
-	private List<Respuesta> respuestas = new ArrayList<>();
+	private List<Respuesta> respuestas;
 
 	public Topico() {
 	}
@@ -127,6 +132,5 @@ public class Topico {
 	public void setRespuestas(List<Respuesta> respuestas) {
 		this.respuestas = respuestas;
 	}
-
 
 }
