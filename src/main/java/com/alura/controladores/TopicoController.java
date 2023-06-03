@@ -46,6 +46,7 @@ public class TopicoController {
 
         for (Topico topico : topicos) {
             TopicoDTO topicoDTO = new TopicoDTO();
+            topicoDTO.setId(topico.getId());
             topicoDTO.setTitulo(topico.getTitulo());
             topicoDTO.setMensaje(topico.getMensaje());
             topicoDTO.setFechaCreacion(topico.getFechaCreacion());
@@ -94,6 +95,7 @@ public class TopicoController {
         Topico nuevoTopico = topicoRepository.save(topico);
 
         TopicoDTO topicoDTO = new TopicoDTO();
+        topicoDTO.setId(nuevoTopico.getId());
         topicoDTO.setTitulo(nuevoTopico.getTitulo());
         topicoDTO.setMensaje(nuevoTopico.getMensaje());
         topicoDTO.setFechaCreacion(nuevoTopico.getFechaCreacion());
@@ -193,6 +195,7 @@ public class TopicoController {
         topicoDTO.setStatus(topicoActualizado.getStatus().name());
         topicoDTO.setAutor(topicoActualizado.getAutor().getNombre());
         topicoDTO.setCurso(topicoActualizado.getCurso().getNombre());
+        topicoDTO.setRespuesta(topicoActualizado.getMensaje());
 
         return ResponseEntity.ok(topicoDTO);
     }
