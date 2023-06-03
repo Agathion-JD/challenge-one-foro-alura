@@ -64,26 +64,26 @@ public class TopicoController {
         return ResponseEntity.ok(topicosDTO);
     }
     @PostMapping
-    public ResponseEntity<TopicoDTO> createTopico(@RequestBody Topico topico) {
+    public ResponseEntity<?> createTopico(@RequestBody Topico topico) {
         // Validar campos obligatorios
         if (StringUtils.isEmpty(topico.getTitulo()) || StringUtils.isEmpty(topico.getMensaje())) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Todos los campos son obligatorios");
         }
 
         // Verificar si el tópico ya existe
         if (existeTopicoExcepto(topico.getTitulo(), topico.getMensaje(), null)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El tópico ya existe");
         }
 
         // Obtener el autor y curso desde la base de datos
         Usuario autor = obtenerUsuario(topico.getAutor().getId());
         if (autor == null) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("El usuario no existe");
         }
 
         Curso curso = obtenerCurso(topico.getCurso().getId());
         if (curso == null) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("El curso no existe");
         }
 
         // Asignar el autor y curso al tópico
