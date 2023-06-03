@@ -1,6 +1,5 @@
 package com.alura.modelo;
 
-import com.alura.modelo.topico.Topico;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

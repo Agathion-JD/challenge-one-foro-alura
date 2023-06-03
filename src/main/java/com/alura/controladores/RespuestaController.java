@@ -1,7 +1,8 @@
 package com.alura.controladores;
 
+import com.alura.dto.RespuestaDTO;
 import com.alura.modelo.Respuesta;
-import com.alura.modelo.topico.Topico;
+import com.alura.modelo.Topico;
 import com.alura.modelo.Usuario;
 import com.alura.repositorios.RespuestaRepository;
 import com.alura.repositorios.TopicoRepository;
@@ -24,12 +25,10 @@ public class RespuestaController {
     }
 
     @PostMapping
-    public ResponseEntity<Respuesta> createRespuesta(@RequestBody Respuesta respuesta) {
+    public ResponseEntity<RespuestaDTO> createRespuesta(@RequestBody Respuesta respuesta) {
         Topico topico = respuesta.getTopico();
         Usuario autor = respuesta.getAutor();
         if (topico == null || topico.getId() == null || autor == null || autor.getId() == null) {
-            // Manejar el caso en el que no se proporcione el tópico o su ID, o el autor o su ID
-            // Por ejemplo, lanzar una excepción o devolver un error
             return ResponseEntity.badRequest().build();
         }
 
@@ -37,8 +36,6 @@ public class RespuestaController {
         autor = usuarioRepository.findById(autor.getId()).orElse(null);
 
         if (topico == null || autor == null) {
-            // Manejar el caso en el que no se encuentre el tópico o el autor
-            // Por ejemplo, lanzar una excepción o devolver un error
             return ResponseEntity.badRequest().build();
         }
 
@@ -46,22 +43,35 @@ public class RespuestaController {
         respuesta.setAutor(autor);
 
         Respuesta nuevaRespuesta = respuestaRepository.save(respuesta);
-        return ResponseEntity.ok(nuevaRespuesta);
+
+        RespuestaDTO nuevaRespuestaDTO = new RespuestaDTO();
+        nuevaRespuestaDTO.setId(nuevaRespuesta.getId());
+        nuevaRespuestaDTO.setMensaje(nuevaRespuesta.getMensaje());
+        nuevaRespuestaDTO.setTopicoId(nuevaRespuesta.getTopico().getId());
+        nuevaRespuestaDTO.setNombreAutor(nuevaRespuesta.getAutor().getNombre());
+
+        return ResponseEntity.ok(nuevaRespuestaDTO);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Respuesta> updateRespuesta(@PathVariable Long id, @RequestBody Respuesta updatedRespuesta) {
+    public ResponseEntity<RespuestaDTO> updateRespuesta(@PathVariable Long id, @RequestBody RespuestaDTO updatedRespuestaDTO) {
         Respuesta respuesta = respuestaRepository.findById(id).orElse(null);
         if (respuesta == null) {
-            // Manejar el caso en el que no se encuentre la respuesta
-            // Por ejemplo, lanzar una excepción o devolver un error
             return ResponseEntity.notFound().build();
         }
 
         // Actualizar los datos de la respuesta
-        respuesta.setMensaje(updatedRespuesta.getMensaje());
+        respuesta.setMensaje(updatedRespuestaDTO.getMensaje());
 
         Respuesta respuestaActualizada = respuestaRepository.save(respuesta);
-        return ResponseEntity.ok(respuestaActualizada);
+
+        // Crear una instancia de RespuestaDTO con los datos actualizados
+        RespuestaDTO respuestaDTO = new RespuestaDTO();
+        respuestaDTO.setId(respuestaActualizada.getId());
+        respuestaDTO.setMensaje(respuestaActualizada.getMensaje());
+        respuestaDTO.setTopicoId(respuestaActualizada.getTopico().getId());
+        respuestaDTO.setNombreAutor(respuestaActualizada.getAutor().getNombre());
+
+        return ResponseEntity.ok(respuestaDTO);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRespuesta(@PathVariable Long id) {
@@ -77,14 +87,21 @@ public class RespuestaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Respuesta> getRespuestaById(@PathVariable Long id) {
+    public ResponseEntity<RespuestaDTO> getRespuestaById(@PathVariable Long id) {
         Respuesta respuesta = respuestaRepository.findById(id).orElse(null);
         if (respuesta == null) {
-            // Manejar el caso en el que no se encuentre la respuesta
-            // Por ejemplo, lanzar una excepción o devolver un error
+
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(respuesta);
+        RespuestaDTO respuestaDTO = new RespuestaDTO();
+        respuestaDTO.setId(respuesta.getId());
+        respuestaDTO.setMensaje(respuesta.getMensaje());
+        respuestaDTO.setTopicoId(respuesta.getTopico().getId());
+        respuestaDTO.setNombreAutor(respuesta.getAutor().getNombre());
+
+
+
+        return ResponseEntity.ok(respuestaDTO);
     }
 }

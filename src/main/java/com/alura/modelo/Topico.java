@@ -1,9 +1,5 @@
-package com.alura.modelo.topico;
+package com.alura.modelo;
 
-import com.alura.modelo.Curso;
-import com.alura.modelo.Respuesta;
-import com.alura.modelo.StatusTopico;
-import com.alura.modelo.Usuario;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -34,6 +30,8 @@ public class Topico {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "topico", cascade = CascadeType.ALL)
 	private List<Respuesta> respuestas;
+
+
 
 	public Topico() {
 	}

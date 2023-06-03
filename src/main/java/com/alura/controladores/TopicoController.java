@@ -1,10 +1,12 @@
 package com.alura.controladores;
 
+
+import com.alura.dto.StatusDTO;
 import com.alura.modelo.Curso;
 import com.alura.modelo.Respuesta;
-import com.alura.modelo.topico.Topico;
+import com.alura.modelo.Topico;
 import com.alura.modelo.Usuario;
-import com.alura.modelo.topico.TopicoDTO;
+import com.alura.dto.TopicoDTO;
 import com.alura.repositorios.CursoRepository;
 import com.alura.repositorios.RespuestaRepository;
 import com.alura.repositorios.TopicoRepository;
@@ -62,26 +64,26 @@ public class TopicoController {
         return ResponseEntity.ok(topicosDTO);
     }
     @PostMapping
-    public ResponseEntity<?> createTopico(@RequestBody Topico topico) {
+    public ResponseEntity<TopicoDTO> createTopico(@RequestBody Topico topico) {
         // Validar campos obligatorios
         if (StringUtils.isEmpty(topico.getTitulo()) || StringUtils.isEmpty(topico.getMensaje())) {
-            return ResponseEntity.badRequest().body("Todos los campos son obligatorios");
+            return ResponseEntity.badRequest().body(null);
         }
 
         // Verificar si el tópico ya existe
         if (existeTopicoExcepto(topico.getTitulo(), topico.getMensaje(), null)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("El tópico ya existe");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
 
         // Obtener el autor y curso desde la base de datos
         Usuario autor = obtenerUsuario(topico.getAutor().getId());
         if (autor == null) {
-            return ResponseEntity.badRequest().body("El autor no existe");
+            return ResponseEntity.badRequest().body(null);
         }
 
         Curso curso = obtenerCurso(topico.getCurso().getId());
         if (curso == null) {
-            return ResponseEntity.badRequest().body("El curso no existe");
+            return ResponseEntity.badRequest().body(null);
         }
 
         // Asignar el autor y curso al tópico
@@ -90,11 +92,20 @@ public class TopicoController {
 
         // Registrar el nuevo tópico
         Topico nuevoTopico = topicoRepository.save(topico);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoTopico);
+
+        TopicoDTO topicoDTO = new TopicoDTO();
+        topicoDTO.setTitulo(nuevoTopico.getTitulo());
+        topicoDTO.setMensaje(nuevoTopico.getMensaje());
+        topicoDTO.setFechaCreacion(nuevoTopico.getFechaCreacion());
+        topicoDTO.setStatus(nuevoTopico.getStatus().name());
+        topicoDTO.setAutor(nuevoTopico.getAutor().getNombre());
+        topicoDTO.setCurso(nuevoTopico.getCurso().getNombre());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(topicoDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTopico(@PathVariable Long id, @RequestBody Topico topico) {
+    public ResponseEntity<?> updateTopico(@PathVariable Long id, @RequestBody TopicoDTO topicoDTO) {
         // Verificar si el tópico existe
         Topico topicoExistente = obtenerTopico(id);
         if (topicoExistente == null) {
@@ -102,22 +113,33 @@ public class TopicoController {
         }
 
         // Validar campos obligatorios
-        if (StringUtils.isEmpty(topico.getTitulo()) || StringUtils.isEmpty(topico.getMensaje())) {
+        if (StringUtils.isEmpty(topicoDTO.getTitulo()) || StringUtils.isEmpty(topicoDTO.getMensaje())) {
             return ResponseEntity.badRequest().body("Todos los campos son obligatorios");
         }
 
         // Verificar si el título y mensaje del tópico ya existen en otro tópico
-        if (existeTopicoExcepto(topico.getTitulo(), topico.getMensaje(), id)) {
+        if (existeTopicoExcepto(topicoDTO.getTitulo(), topicoDTO.getMensaje(), id)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("El tópico ya existe");
         }
 
         // Actualizar los datos del tópico existente
-        topicoExistente.setTitulo(topico.getTitulo());
-        topicoExistente.setMensaje(topico.getMensaje());
+        topicoExistente.setTitulo(topicoDTO.getTitulo());
+        topicoExistente.setMensaje(topicoDTO.getMensaje());
 
         // Guardar los cambios en el tópico existente
         Topico topicoActualizado = topicoRepository.save(topicoExistente);
-        return ResponseEntity.ok(topicoActualizado);
+
+        // Crear un objeto TopicoDTO actualizado y devolverlo como respuesta
+        TopicoDTO topicoDTOActualizado = new TopicoDTO();
+        topicoDTOActualizado.setId(topicoActualizado.getId());
+        topicoDTOActualizado.setTitulo(topicoActualizado.getTitulo());
+        topicoDTOActualizado.setMensaje(topicoActualizado.getMensaje());
+        topicoDTOActualizado.setFechaCreacion(topicoActualizado.getFechaCreacion());
+        topicoDTOActualizado.setStatus(topicoActualizado.getStatus().name());
+        topicoDTOActualizado.setAutor(topicoActualizado.getAutor().getNombre());
+        topicoDTOActualizado.setCurso(topicoActualizado.getCurso().getNombre());
+
+        return ResponseEntity.ok(topicoDTOActualizado);
     }
 
     @DeleteMapping("/{id}")
@@ -152,6 +174,27 @@ public class TopicoController {
     private Topico obtenerTopico(Long id) {
         return topicoRepository.findById(id)
                 .orElse(null);
+    }
+    @PutMapping("/{id}/status")
+    public ResponseEntity<TopicoDTO> updateTopicoStatus(@PathVariable Long id, @RequestBody StatusDTO updateStatusDTO) {
+        Topico topico = topicoRepository.findById(id).orElse(null);
+        if (topico == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        topico.setStatus(updateStatusDTO.getStatus());
+        Topico topicoActualizado = topicoRepository.save(topico);
+
+        TopicoDTO topicoDTO = new TopicoDTO();
+        topicoDTO.setId(topicoActualizado.getId());
+        topicoDTO.setTitulo(topicoActualizado.getTitulo());
+        topicoDTO.setMensaje(topicoActualizado.getMensaje());
+        topicoDTO.setFechaCreacion(topicoActualizado.getFechaCreacion());
+        topicoDTO.setStatus(topicoActualizado.getStatus().name());
+        topicoDTO.setAutor(topicoActualizado.getAutor().getNombre());
+        topicoDTO.setCurso(topicoActualizado.getCurso().getNombre());
+
+        return ResponseEntity.ok(topicoDTO);
     }
 
 }

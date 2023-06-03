@@ -1,7 +1,8 @@
-package com.alura.modelo.topico;
+package com.alura.dto;
 
 import java.time.LocalDateTime;
 public class TopicoDTO {
+    private Long id;
     private String titulo;
     private String mensaje;
     private LocalDateTime fechaCreacion;
@@ -9,6 +10,14 @@ public class TopicoDTO {
     private String autor;
     private String curso;
     private String respuesta;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getTitulo() {
         return titulo;
